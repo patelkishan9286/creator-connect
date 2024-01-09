@@ -1,0 +1,84 @@
+image: ubuntu:latest
+
+stages:
+  - build
+  - test
+  # - smell-detection
+  # - deploy
+
+# cache:
+#   paths:
+#     - node_modules/
+#     - .m2/repository/
+
+build-backend:
+  stage: build
+  # tags:
+  #   - ugrad
+  image: maven:latest
+  script:
+    - cd backend/creator-connect
+    - echo "Running build stage (backend)..."
+    - chmod +x ./mvnw
+    - ./mvnw -version
+    - cat /etc/os-release
+    - ./mvnw clean package
+    - java -version
+    - echo "Build successful!"
+
+test-backend:
+  stage: test
+  # tags:
+  #   - ugrad
+  image: maven:latest
+  script:
+    - cd backend/creator-connect
+    - echo "Running test stage..."
+    - chmod +x ./mvnw
+    - ./mvnw test
+    - echo "Test stage completed!"
+
+build-frontend:
+  stage: build
+  #  tags:
+  #     - ugrad
+  image: node:16
+  script:
+    - cd frontend/creator-connect
+    - echo "Building frontend..."
+    - npm install --legacy-peer-deps
+    - npm run build
+    - echo "Build successful!"
+# Waiting on getting Designite API.
+# code-quality:
+#   stage: smell-detection
+#   script:
+#     - echo "Code quality stage..."
+#     - wget "https://www.designite-tools.com/static/download/DJE/DesigniteJava.jar"
+#     - java -jar DesigniteJava.jar -i backend/creator-connect -o backend/creator-connect
+#     - echo "Saving results in csvs..."
+#   artifacts:
+#     paths:
+#       - ArchitectureSmells.csv
+#       - DesignSmells.csv
+#       - ImplementationSmells.csv
+#       - MethodMetrics.csv
+#       - TestabilitySmells.csv
+#       - TypeMetrics.csv
+
+# Planning to push this to dockerhub , and then run the latest image on the server (Initial Dockerfile is included)
+# deploy-backend:
+#   stage: deploy
+#   script:
+#     - cd backend/creator-connect
+#     - mvn clean package
+#     - echo "Building docker image..."
+#     - docker build -t creator_connect_backend .
+#     - echo "Deploying backend on docker..."
+#     - docker push {}
+
+# deploy-frontend:
+#   stage: deploy
+#   script:
+#     - cd frontend/creator-connect
+#     -
